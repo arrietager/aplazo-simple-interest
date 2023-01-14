@@ -38,4 +38,8 @@ public class SimpleInterestService {
 		
 		return responseList;
 	}
+	
+	public List<Response> getPaymentsByRequestId(int requestId) {
+		return responseRepository.findByRequestId(requestId);
+	}
 }

@@ -5,6 +5,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -56,6 +58,22 @@ public class SimpleInterestController {
 			response.setRequestId(responseList.get(0).getRequestId());
 			
 			return new ResponseEntity<>(response, HttpStatus.OK);
+		} catch(Exception e) {
+			return new ResponseEntity<>(new ResponseMessageBean(false, "Unexpected error while calculating payments."), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	@GetMapping("/payments/{requestId}")
+	public ResponseEntity<ResponseMessageBean> getPaymentsByRequestId(@PathVariable("requestId") int requestId) {
+		try {
+			List<Response> responseList = simpleInterestService.getPaymentsByRequestId(requestId);
+			
+			if(responseList.isEmpty())
+				return new ResponseEntity<>(new ResponseMessageBean(true, "RequestId not found :("), HttpStatus.OK);
+			
+			List<ResponseBean> responseBeanList = ResponseBean.parse(responseList);
+			
+			return new ResponseEntity<>(new ResponseMessageBean(true, "RequestId found successfully!!", requestId, responseBeanList), HttpStatus.OK);
 		} catch(Exception e) {
 			return new ResponseEntity<>(new ResponseMessageBean(false, "Unexpected error while calculating payments."), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
